@@ -5,7 +5,7 @@ export const getEmployees = async (req, res) => {
     const [rows] = await pool.query("SELECT * FROM employees");
     res.json(rows);
   } catch (e) {
-    console.log(e);
+    console.log("Error " + e);
   }
 };
 
@@ -17,7 +17,7 @@ export const getEmployeeById = async (req, res) => {
     if (rows.length <= 0) res.send("Not Found");
     res.json(rows[0]);
   } catch (e) {
-    console.log(e);
+    console.log("Error " + e);
   }
 };
 
@@ -29,7 +29,7 @@ export const getEmployeeByName = async (req, res) => {
     if (rows.length <= 0) res.send("Not Found");
     res.json(rows[0]);
   } catch (e) {
-    console.log(e);
+    console.log("Error " + e);
   }
 };
 
@@ -53,7 +53,7 @@ export const deleteEmployee = async (req, res) => {
     ]);
     res.send("Employee has been removed");
   } catch (e) {
-    console.log(e);
+    console.log("Theres an error " + e);
   }
 };
 
@@ -61,11 +61,16 @@ export const updateEmployee = async (req, res) => {
   const { name, salay } = req.body;
   try {
     const [rows] = await pool.query(
-      "UPDATE employees SET name = ?, salay = ? WHERE id = ?",
+      "UPDATE employees SET name = IFNULL(?, name), salay = IFNULL(?, salay) WHERE id = ?",
       [name, salay, req.params.id]
     );
-    res.json(rows[0]);
+    if (rows.affectedRows === 0) return res.send("Theres no user to update");
+    //Consultamos el empleado actualizado
+    const [result] = await pool.query("SELECT * FROM employees WHERE id = ?", [
+      req.params.id,
+    ]);
+    res.json(result);
   } catch (e) {
-    console.log(e);
+    console.log("Theres an error " + e);
   }
 };

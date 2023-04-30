@@ -10,6 +10,7 @@ import {
 
 const router = Router();
 
+//Routes
 router.get("/employees", getEmployees);
 
 router.get("/employees/:id", getEmployeeById);
